@@ -1,1 +1,1 @@
-# TeamCommunicator
+TeamCommunicator is a Flask-based web application designed to enhance team communication and collaboration. It serves as a platform where team members can exchange messages, share files, and manage tasks efficiently. The project emphasizes simplicity and user-friendliness, ensuring that team communication is streamlined and effective. By leveraging the Flask framework, TeamCommunicator facilitates easy setup, customization, and deployment, making it an ideal choice for teams looking to improve their communication workflows.
