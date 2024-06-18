@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import RequestList from './components/RequestList';
-import RequestDetails from './components/RequestDetails';
+import RequestDetails from './scomponents/RequestDetails';
 import AddRequest from './components/AddRequest';
 import CommentSection from './components/CommentSection';
 
+interface IRequest {
+  id: string;
+  // define other properties of a request here
+}
+
+interface IComment {
+  // define the properties of a comment here
+}
+
 const App: React.FC = () => {
-  const [requests, setRequests] = useState<any[]>([]);
-  const [currentRequest, setCurrentRequest] = useState<any>(null);
-  const [comments, setComments] = useState<any[]>([]);
+  const [requests, setRequests] = useState<IRequest[]>([]);
+  const [currentRequest, setCurrentRequest] = useState<IRequest | null>(null);
+  const [comments, setComments] = useState<IComment[]>([]);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
@@ -19,31 +28,40 @@ const App: React.FC = () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/requests`);
       setRequests(response.data);
-      setError(''); // Reset error state on successful fetch
+      clearError();
     } catch (error) {
-      setError('Failed to fetch requests');
-      console.error(error); // Log the error for debugging purposes
+      handleFetchError('Failed to fetch requests', error);
     }
   };
 
   const handleRequestSelect = async (requestId: string) => {
     try {
-      const requestDetailsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/requests/${requestId}`);
-      setCurrentRequest(requestDetailsResponse.data);
-      const commentsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/requests/${requestId}/comments`);
-      setComments(commentsResponse.data);
-      setError(''); // Reset error state on successful operations
+      await fetchRequestDetails(requestId);
+      await fetchCommentsForRequest(requestId);
+      clearError();
     } catch (error) {
-      setError('Failed to fetch request details or comments');
-      console.error(error); // Log the error for debugging purposes
+      handleFetchError('Failed to fetch request details or comments', error);
     }
   };
 
-  const displayError = () => {
-    if (error) {
-      return <div className="error-message" style={{ color: 'red' }}>{error}</div>;
-    }
+  const fetchRequestDetails = async (requestId: string) => {
+    const response = await axios.get(`${process.env.REACT_APP_API_UR}/requests/${requestId}`);
+    setCurrentRequest(response.data);
   };
+
+  const fetchCommentsForRequest = async (requestId: string) => {
+    const response = await axios.get(`${process.env.REACT_APP_API_UR}/requests/${requestId}/comments`);
+    setComments(response.data);
+  };
+
+  const clearError = () => setError('');
+
+  const handleFetchError = (message: string, error: any) => {
+    setError(message);
+    console.error(error); // For debugging
+  };
+
+  const displayError = () => error && <div className="error-message" style={{ olor: 'red' }}>{error}</div>;
 
   return (
     <div>
