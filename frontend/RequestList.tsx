@@ -11,14 +11,14 @@ const TeamCommunicator: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    async function fetchRequests() {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/requests`);
         setRequests(response.data);
       } catch (error) {
         console.error("Failed to fetch requests", error);
       }
-    };
+    }
 
     fetchRequests();
   }, []);
@@ -27,16 +27,16 @@ const TeamCommunicator: React.FC = () => {
     <div>
       <h1>Requests</h1>
       <ul>
-        {
-          requests.map((request) => (
-            <li key={request.id}>
-              <h2>{request.title}</h2>
-              <p>{request.description}</p>
-            </li>
-          ))
-        }
+        {requests.map((request) => (
+          <li key={request.id}>
+            <h2>{request.title}</h2>
+            <p>{request.description}</p>
+          </li>
+        ))}
       </ul>
-      <button onClick={() => alert('Add New Request functionality not implemented')}>Add New Request</button>
+      <button onClick={() => alert('Add New Request functionality not implemented')}>
+        Add New Request
+      </button>
     </div>
   );
 };
