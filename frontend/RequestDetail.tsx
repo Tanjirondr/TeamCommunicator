@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface RequestDetails {
+interface RequestInfo {
     id: string;
     title: string;
     description: string;
@@ -9,12 +9,20 @@ interface RequestDetails {
     createdAt: string;
 }
 
-interface Comment {
+interface RequestComment {
     createdBy: string;
     message: string;
     createdAt: string;
 }
 
-const RequestDetail: React.FC<{ requestId: string }> = ({ requestId }) => {
-    const [requestDetails, setRequestDetails] = useState<RequestDetails | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]);
+const RequestDetailView: React.FC<{ requestId: string }> = ({ requestId }) => {
+    const [requestInfo, setRequestInfo] = useState<RequestInfo | null>(null);
+    const [requestComments, setRequestExplicitComments] = useState<RequestComment[]>([]);
+    
+    return (
+        <div>
+        </div>
+    );
+};
+
+export default RequestDetailView;
