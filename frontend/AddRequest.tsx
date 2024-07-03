@@ -4,18 +4,20 @@ import axios from 'axios';
 interface IRequestFormState {
   title: string;
   description: string;
+  priority: string; // Added priority to your form state
 }
 
 const TeamCommunicatorAddRequest: React.FC = () => {
   const [formData, setFormData] = useState<IRequestFormState>({
     title: '',
-    description: ''
+    description: '',
+    priority: 'Medium', // Default priority is set to Medium
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { // Updated to also handle select element
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -51,6 +53,19 @@ const TeamCommunicatorAddRequest: React.FC = () => {
           onChange={handleInputChange}
           required 
         />
+      </div>
+      <div>
+        <label htmlFor="priority">Priority</label>
+        <select
+          name="priority"
+          value={formData.priority}
+          onChange={handleInputChange} // Reusing the existing change handler for simplicity
+          required
+        >
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
       </div>
       <button type="submit">Submit</button>
     </form>
