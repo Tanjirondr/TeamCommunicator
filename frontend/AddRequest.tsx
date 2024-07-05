@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-interface IRequestFormState {
+interface IRequestFormData {  // Renamed for clarity
   title: string;
   description: string;
-  priority: string; // Added priority to your form state
+  priority: string; // Priority maintained as is
 }
 
-const TeamCommunicatorAddRequest: React.FC = () => {
-  const [formData, setFormData] = useState<IRequestFormState>({
+const AddRequestForm: React.FC = () => {  // Name made more specific to its function
+  const [requestFormData, setRequestFormData] = useState<IRequestFormData>({ // Adjusted for clarity
     title: '',
     description: '',
-    priority: 'Medium', // Default priority is set to Medium
+    priority: 'Medium', // Default priority retained
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { // Updated to also handle select element
-    setFormData({
-      ...formData,
+  const handleInputChange = (e: React.Change. Event<HTMLInputElement | HTMLSelectElement>) => { // Kept generic as it's a common handler for inputs and select
+    setRequestFormData({
+      ...requestFormData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitRequest = async (e: React.FormEvent) => {  // Name changed to reflect action
     e.preventDefault(); 
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/requests`, formData);
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/requests`, requestFormData);
       console.log('Request added successfully:', response.data);
     } catch (error) {
       console.error('Error adding request:', error);
@@ -33,13 +33,13 @@ const TeamCommunicatorAddRequest: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmitRequest}>
       <div>
         <label htmlFor="title">Title</label>
         <input
           name="title"
           type="text"
-          value={formData.title}
+          value={requestFormData.title}
           onChange={handleInputChange}
           required 
         />
@@ -49,7 +49,7 @@ const TeamCommunicatorAddRequest: React.FC = () => {
         <input
           name="description"
           type="text"
-          value={formData.description}
+          value={requestFormData.description}
           onChange={handleInputChange}
           required 
         />
@@ -58,8 +58,8 @@ const TeamCommunicatorAddRequest: React.FC = () => {
         <label htmlFor="priority">Priority</label>
         <select
           name="priority"
-          value={formData.priority}
-          onChange={handleInputChange} // Reusing the existing change handler for simplicity
+          value={requestFormData.priority}
+          onChange={handleInputChange} // Using the same handler for simplicity
           required
         >
           <option value="Low">Low</option>
@@ -67,9 +67,9 @@ const TeamCommunicatorAddRequest: React.FC = () => {
           <option value="High">High</option>
         </select>
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit">Submit Request</button>
     </form>
   );
 };
 
-export default TeamCommunicatorAddRequest;
+export default AddRequestForm; // Name export changed to match the updated component name
