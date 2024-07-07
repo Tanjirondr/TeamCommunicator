@@ -10,43 +10,43 @@ interface Comment {
 interface TeamCommunicatorProps {}
 
 const TeamCommunicator: React.FC<TeamCommunicatorProps> = () => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
+  const [commentsList, setCommentsList] = useState<Comment[]>([]);
+  const [commentInput, setCommentInput] = useState('');
 
   useEffect(() => {
-    const fetchComments = async () => {
+    const fetchAllComments = async () => {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/comments`);
-      setComments(response.data);
+      setCommentsList(response.data);
     };
 
-    fetchComments();
+    fetchAllComments();
   }, []);
 
-  const handleAddComment = async () => {
-    if (!newComment) return;
+  const handleCommentSubmit = async () => {
+    if (!commentInput) return;
 
     const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/comments`, {
-      content: newComment,
+      content: commentInput,
     });
-    setComments([...comments, response.data]);
-    setNewComment('');
+    setCommentsList([...commentsList, response.data]);
+    setCommentInput('');
   };
 
   return (
     <div>
       <h2>Comments</h2>
       <ul>
-        {comments.map((comment) => (
-          <li key={comment.id}>{comment.content} (Posted on {comment.createdAt.toString()})</li>
+        {commentsList.map((comment) => (
+          <li key={comment.id}>{comment.content} (Posted on {new Date(comment.createdAt).toLocaleString()})</li>
         ))}
       </ul>
       <div>
         <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
+          value={commentInput}
+          onChange={(e) => setCommentInput(e.target.value)}
           placeholder="Add a comment..."
         />
-        <button onClick={handleAddComment}>Submit</button>
+        <button onClick={handleCommentSubmit}>Submit</button>
       </div>
     </div>
   );
