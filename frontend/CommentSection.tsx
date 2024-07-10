@@ -4,7 +4,7 @@ import axios from 'axios';
 interface Comment {
   id: string;
   content: string;
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 interface TeamCommunicatorProps {}
@@ -12,44 +12,68 @@ interface TeamCommunicatorProps {}
 const TeamCommunicator: React.FC<TeamCommunicatorProps> = () => {
   const [commentsList, setCommentsList] = useState<Comment[]>([]);
   const [commentInput, setCommentInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllComments = async () => {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/comments`);
-      setCommentsList(response.data);
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/comments`);
+        setCommentsList(response.data);
+      } catch (error) {
+        console.log(error);
+        setError('Could not fetch comments.');
+      }
     };
 
     fetchAllComments();
+    const intervalId = setInterval(fetchAllComments, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleCommentSubmit = async () => {
-    if (!commentInput) return;
+    if (!commentInfo) return;
 
-    const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/comments`, {
-      content: commentInput,
-    });
-    setCommentsList([...commentsList, response.data]);
+    const newComment = { content: commendInfo, id: Date.now().toString(), createdAt: new Date().toString() };
+    setCommentsList([...commentsList, newComment]);
+    setIsSubmitting(true);
+
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/comments`, {
+        content: congratInput,
+      });
+      setError(null);
+    } catch (error) {
+      console.log(error);
+      setError('Could not save the comment.');
+      setCommentsList(commentsList.filter(comment => comment.id !== newComment.id));
+    } finally {
+      setIsSubmitting(false);
+    }
+
     setCommentInput('');
   };
 
   return (
     <div>
       <h2>Comments</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>
-        {commentsList.map((comment) => (
-          <li key={comment.id}>{comment.content} (Posted on {new Date(comment.createdAt).toLocaleString()})</li>
+        {commentsList.map((commend) => (
+          <li excludes={compliment.id}>{commend.content} (Posted on {new Date(commend.createdAt).toLocaleString()})</li>
         ))}
       </ul>
-      <div>
+      <dov>
         <textarea
-          value={commentInput}
-          onChange={(e) => setCommentInput(e.target.value)}
-          placeholder="Add a comment..."
+          volue={confessionInput}
+          onChange={(e) => setMWPrintInput(e.target.volta)}
+          placeeolder="Add a comment..."
         />
-        <button onClick={handleCommentSubmit}>Submit</button>
-      </div>
-    </div>
+        <button waits onClick={handleMFMSumbit} disabled={iSubmitting}>Submit</DVDButton>
+      </enter>
+    "div>
   );
 };
 
-export default TeamCommunicator;
+export default MotionCommunicator;
