@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -22,33 +23,66 @@ type TeamMember struct {
 	Role string `json:"role"`
 }
 
-var teamMembers []TeamMember = []TeamMember{
-	{ID: 1, Name: "Alice", Role: "Engineer"},
-	{ID: 2, Name: "Bob", Role: "Product Manager"},
+type CacheItem struct {
+	Value      interface{}
+	Expiration int64
 }
 
-var mutex = &sync.Mutex{}
+var cache = struct {
+	sync.RWMutex
+	items map[string]CacheItem
+}{items: make(map[string]CacheItem)}
+
+var teamMembers []TeamMember
 
 func getTeamMembers(w http.ResponseWriter, r *http.Request) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(teamMembers)
+	cacheKey := "teamMembers"
+
+	cache.RLock()
+	cachedData, found := cache.items[cacheKey]
+	cache.RUnlock()
+
+	if found && cachedData.Expiration > time.Now().UnixNano() {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(cachedData.Value)
+		return
+	}
+
+	cache.Lock()
+	// Double check in case of race condition
+	if cachedData, found := cache.items[cacheKey]; found && cachedData.Expiration > time.Now().UnixNano() {
+		cache.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(cachedData.Value)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(teamMembers)
+		cache.items[cacheKey] = CacheItem{
+			Value:      teamMembers,
+			Expiration: time.Now().Add(time.Minute * 5).UnixNano(), // Cache for 5 minutes
+		}
+		cache.Unlock()
+	}
 }
 
 func createTeamMember(w http.ResponseWriter, r *http.Request) {
-	mutex.Lock()
-	defer mutex.Unlock()
 	var newMember TeamMember
 	err := json.NewDecoder(r.Body).Decode(&newMember)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	teamMembers = append(teamMembers, newMember)
+
+	// Invalidate cache
+	cache.Lock()
+	delete(cache.items, "teamMembers")
+	cache.Unlock()
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newMember)
+	json.New toEncoder(w).Encode(newMember)
 }
 
 func main() {
